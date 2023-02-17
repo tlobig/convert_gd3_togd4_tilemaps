@@ -1,0 +1,260 @@
+[gd_scene load_steps=6 format=3 uid="uid://dbc7y4o85kuxa"]
+
+[ext_resource type="PackedScene" path="res://RandomWalker/Actors/Player.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://bvbk1abn8b804" path="res://RandomWalker/Actors/Enemy.tscn" id="2"]
+[ext_resource type="Texture2D" uid="uid://bv5ogdkv48xuk" path="res://RandomWalker/Levels/tiles.svg" id="3"]
+[ext_resource type="TileSet" uid="uid://c78lul1je00s" path="res://RandomWalker/Levels/tileset.tres" id="4"]
+[ext_resource type="Script" path="res://RandomWalker/Rooms.gd" id="5"]
+
+[node name="Rooms" type="Node2D"]
+script = ExtResource("5")
+
+[node name="Side" type="Node2D" parent="."]
+
+[node name="0" type="TileMap" parent="Side"]
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(0, 0, 0, 1, 65536, 0, 2, 65536, 0, 3, 65536, 0, 4, 65536, 0, 5, 65536, 0, 6, 65536, 0, 7, 65536, 0, 8, 65536, 0, 9, 65536, 0, 10, 65536, 0, 11, 65536, 0, 12, 65536, 0, 13, 131072, 0, 65536, 0, 1, 65537, 131072, 3, 65538, 65536, 4, 65539, 65536, 4, 65540, 65536, 4, 65541, 65536, 4, 65542, 65536, 4, 65543, 65536, 4, 65544, 65536, 4, 65545, 65536, 4, 65546, 65536, 4, 65547, 65536, 4, 65548, 0, 3, 65549, 131072, 1, 131072, 0, 1, 131073, 131072, 1, 131084, 0, 1, 131085, 131072, 1, 196608, 0, 1, 196609, 131072, 1, 196620, 0, 1, 196621, 131072, 1, 262144, 0, 1, 262145, 131072, 1, 262156, 0, 1, 262157, 131072, 1, 327680, 0, 1, 327681, 131072, 1, 327691, 0, 0, 327692, 0, 2, 327693, 131072, 1, 393216, 0, 1, 393217, 131072, 1, 393227, 0, 4, 393228, 0, 3, 393229, 131072, 1, 458752, 0, 1, 458753, 131072, 1, 458761, 5, 0, 458763, 3, 0, 458764, 0, 1, 458765, 131072, 1, 524288, 0, 1, 524289, 131072, 1, 524290, 3, 0, 524294, 6, 0, 524295, 6, 0, 524296, 6, 0, 524299, 4, 0, 524300, 0, 1, 524301, 131072, 1, 589824, 0, 1, 589825, 131072, 2, 589826, 65536, 0, 589827, 65536, 0, 589828, 65536, 0, 589829, 65536, 0, 589830, 65536, 0, 589831, 65536, 0, 589832, 65536, 0, 589833, 65536, 0, 589834, 65536, 0, 589835, 65536, 0, 589836, 0, 2, 589837, 131072, 1, 655360, 0, 4, 655361, 65536, 4, 655362, 65536, 4, 655363, 65536, 4, 655364, 65536, 4, 655365, 65536, 4, 655366, 65536, 4, 655367, 65536, 4, 655368, 65536, 4, 655369, 65536, 4, 655370, 65536, 4, 655371, 65536, 4, 655372, 65536, 4, 655373, 131072, 4)
+
+[node name="1" type="TileMap" parent="Side"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(196615, 5, 0, 262153, 6, 0, 262154, 4, 0, 393222, 3, 0, 458755, 3, 0, 524290, 4, 0, 524301, 3, 0)
+
+[node name="LR" type="Node2D" parent="."]
+
+[node name="0" type="TileMap" parent="LR"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(131081, 3, 0, 458753, 4, 0, 458760, 5, 0, 524291, 6, 0, 524292, 6, 0, 524298, 3, 0)
+
+[node name="Player" parent="LR/0" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(360, 540)
+
+[node name="Enemy0" parent="LR/0" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(480, 540)
+
+[node name="Chest0" type="Sprite2D" parent="LR/0"]
+position = Vector2(720, 420)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="1" type="TileMap" parent="LR"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(131084, 3, 0, 262146, 6, 0, 458756, 3, 0, 524296, 3, 0, 524297, 6, 0, 524298, 6, 0)
+
+[node name="Player" parent="LR/1" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(480, 360)
+
+[node name="Enemy0" parent="LR/1" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(660, 540)
+
+[node name="2" type="TileMap" parent="LR"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(131072, 3, 0, 196616, 4, 0, 327681, 3, 0, 327692, 4, 0, 458760, 5, 0, 458762, 3, 0, 524291, 4, 0, 524294, 6, 0, 524295, 6, 0)
+
+[node name="Player" parent="LR/2" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(480, 240)
+
+[node name="Enemy0" parent="LR/2" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(300, 540)
+
+[node name="Chest0" type="Sprite2D" parent="LR/2"]
+position = Vector2(360, 180)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="3" type="TileMap" parent="LR"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(131073, 3, 0, 131081, 3, 0, 458754, 5, 0, 458764, 4, 0, 524295, 4, 0, 524298, 6, 0)
+
+[node name="Player" parent="LR/3" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(300, 420)
+
+[node name="Enemy0" parent="LR/3" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(540, 540)
+
+[node name="Chest0" type="Sprite2D" parent="LR/3"]
+position = Vector2(180, 540)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="LRB" type="Node2D" parent="."]
+
+[node name="0" type="TileMap" parent="LRB"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(196616, 5, 0, 262145, 4, 0, 262150, 6, 0, 262151, 6, 0, 458754, 3, 0, 524290, 4, 0, 524296, 4, 0)
+
+[node name="Player" parent="LRB/0" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(600, 300)
+
+[node name="Enemy0" parent="LRB/0" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(720, 540)
+
+[node name="Chest0" type="Sprite2D" parent="LRB/0"]
+position = Vector2(600, 540)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="1" type="TileMap" parent="LRB"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(131077, 3, 0, 131080, 5, 0, 393217, 4, 0, 524294, 3, 0, 524296, 6, 0, 524297, 6, 0)
+
+[node name="Player" parent="LRB/1" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(300, 480)
+
+[node name="Enemy0" parent="LRB/1" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(480, 540)
+
+[node name="Chest0" type="Sprite2D" parent="LRB/1"]
+position = Vector2(600, 540)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="Chest1" type="Sprite2D" parent="LRB/1"]
+position = Vector2(480, 240)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="2" type="TileMap" parent="LRB"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(131075, 3, 0, 196616, 6, 0, 458756, 5, 0, 458762, 6, 0, 524290, 6, 0, 524291, 6, 0)
+
+[node name="Player" parent="LRB/2" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(60, 480)
+
+[node name="Enemy0" parent="LRB/2" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(360, 540)
+
+[node name="Chest0" type="Sprite2D" parent="LRB/2"]
+position = Vector2(300, 540)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="Chest1" type="Sprite2D" parent="LRB/2"]
+position = Vector2(360, 180)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="3" type="TileMap" parent="LRB"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(131076, 3, 0, 262154, 6, 0, 327684, 4, 0, 458753, 4, 0, 524290, 6, 0, 524293, 3, 0)
+
+[node name="Player" parent="LRB/3" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(240, 360)
+
+[node name="Enemy0" parent="LRB/3" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(480, 540)
+
+[node name="Chest0" type="Sprite2D" parent="LRB/3"]
+position = Vector2(480, 540)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="Chest1" type="Sprite2D" parent="LRB/3"]
+position = Vector2(480, 240)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="LRT" type="Node2D" parent="."]
+
+[node name="0" type="TileMap" parent="LRT"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(196619, 3, 0, 327692, 4, 0, 393217, 4, 0, 458755, 5, 0, 524293, 6, 0, 524294, 6, 0, 524297, 4, 0)
+
+[node name="Player" parent="LRT/0" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(720, 360)
+
+[node name="Enemy0" parent="LRT/0" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(240, 540)
+speed = Vector2(200, 1000)
+
+[node name="Chest0" type="Sprite2D" parent="LRT/0"]
+position = Vector2(120, 540)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(0, -20)
+region_enabled = true
+region_rect = Rect2(300, 205, 60, 35)
+
+[node name="LRTB" type="Node2D" parent="."]
+
+[node name="0" type="TileMap" parent="LRTB"]
+visible = false
+tile_set = ExtResource("4")
+format = 2
+layer_0/tile_data = PackedInt32Array(327681, 4, 0, 393223, 4, 0, 393225, 5, 0, 458763, 6, 0)
+
+[node name="Player" parent="LRTB/0" instance=ExtResource("1")]
+z_index = 2
+position = Vector2(120, 360)
+
+[node name="Enemy0" parent="LRTB/0" instance=ExtResource("2")]
+z_index = 1
+position = Vector2(600, 480)
