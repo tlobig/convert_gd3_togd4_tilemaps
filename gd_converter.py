@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 import os
 import sys
+import re
 from collections.abc import Iterable
 
 
 class TileSet:
+
+    class Atlas:
+        def __init__(self) -> None:
+            self.name = ""
+            self.gd3_atlas_dict = {}
+
     def __init__(self) -> None:
         self.ext_resources = []
         self.sub_resources = []
@@ -99,10 +106,9 @@ def walk_path(root_dir: str):
         print("found no files to convert, check current working directory or source path parameter")
     return ([tres, tscn])
 
-# a dictionary comprehension to disentangle key="value" lines into a dictionary
-
 
 def header_line_to_dict(line: str):
+    # a dictionary comprehension to disentangle key="value" lines into a dictionary
     line = line.strip()
     return {l.split("=")[0]: l.split("=")[1] for l in line[line.find(" "):-1].split()}
 
@@ -146,8 +152,31 @@ def parse_godot3_tile_set(lines: Iterable[str]):
     # second part, parsing tile atlasses
     # cannot do this here, no indication of 'cell size' without a tilemap - tile_set.prepare_sub_resources(?,?)
     atlas_id = 0
+    atlas = TileSet.Atlas()
     for index in range(rest_starts_at, len(lines)):
-        pass
+        line = lines[index].strip()
+        id_prefix = re.search(r"(\d+)/",line) # match for an integer follow by a forward slash, i.e. 3/
+        if id_prefix:
+            # id_prefix.groups()[0]
+            if int(id_prefix.groups()[0]) != atlas_id:
+                #new atlas started
+                tile_set.atlasses.append(atlas)
+                print(atlas.gd3_atlas_dict)
+                atlas = TileSet.Atlas()
+                atlas_id = int(id_prefix.groups()[0])
+            if line.find("shapes = [ {") != -1:
+                # expecting a few lines that are not prefixed with the id !
+                # danger zone, manipulating the index again
+                # this will ignore the autotiling information, needs to be implemented later
+                index += 1
+                while not re.search(r"(\d+)/",lines[index+1]):
+                    index += 1
+            else:
+                key, value = line[line.find("/")+1:].split("=")
+                atlas.gd3_atlas_dict[key] = value
+    # add final atlas:
+    tile_set.atlasses.append(atlas)
+    print(tile_set.atlasses)
     return tile_set
 
 
@@ -158,12 +187,16 @@ def parse_godot3_tile_map(lines: Iterable[str]):
 
 def tileset_to_godot_4_tileset(ts: TileSet):
     lines = []
+    ts.load_steps += len(ts.ext_resources) + len(ts.atlasses)
     lines.append(
         '[gd_resource type="TileSet" load_steps={0} format=3]\n\n'.format(ts.load_steps))
     for ext in ts.ext_resources:
         lines.append(
             '[ext_resource type={0} path={1} id={2}]\n\n'.format(ext["type"], ext["path"], ext["id"]))
-        ts.load_steps += 1
+    
+    for atlas in ts.atlasses:
+        pass
+        # TODO lines.append([sub_resource type="TileSetAtlasSource" 
     return lines
 
 

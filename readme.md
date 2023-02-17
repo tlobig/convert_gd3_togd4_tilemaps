@@ -5,3 +5,9 @@ Warning, this thing is probably not for you. I just try to create a converter ba
 The idea is to run the script gd_converter.py either in the project folder that should be ported or use source and target dirs as parameters. If you want to try it, make sure to have a back. The target directory may overwrite files. Can't repeat this enough, this is not production code. No liabilities whatsoever.
 
 - Thomas
+
+progress:
+
+- so far only the rudimentary parsing of a tileset is implemented, known as missing:
+  - autotile bitmask reading
+- writing tileset entails uuid-like ids, need to figure out how to best do these, only writing a stub file for now
