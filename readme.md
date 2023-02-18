@@ -13,4 +13,4 @@ progress:
   - texture_region_size is a property of tileset now and used to be a cell_size, a property of tilemap, can't know it without parsing tilemaps
 - writing tilesets:
   - figured out most of the uuid stuff, this project already sees refactoring to have it clean enough.
-  - tileset output is still a stub, working on atlas conversion now
+  - basic tilesets work now, autotiling and collision shapes are missing
