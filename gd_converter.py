@@ -2,8 +2,10 @@
 import os
 import sys
 import re
+
 from collections.abc import Iterable
 
+from UID_tools import UID
 
 class TileSet:
 
@@ -11,6 +13,13 @@ class TileSet:
         def __init__(self) -> None:
             self.name = ""
             self.gd3_atlas_dict = {}
+            self.texture_region_size = [0,0]
+
+        def has(self,key : str) -> bool:
+            return key in self.gd3_atlas_dict.keys()
+
+        def get(self,key : str) -> bool:
+            return self.gd3_atlas_dict[key] if self.has(key) else ""
 
     def __init__(self) -> None:
         self.ext_resources = []
@@ -155,11 +164,12 @@ def parse_godot3_tile_set(lines: Iterable[str]):
     atlas = TileSet.Atlas()
     for index in range(rest_starts_at, len(lines)):
         line = lines[index].strip()
-        id_prefix = re.search(r"(\d+)/",line) # match for an integer follow by a forward slash, i.e. 3/
+        # match for an integer follow by a forward slash, i.e. 3/
+        id_prefix = re.search(r"(\d+)/", line)
         if id_prefix:
             # id_prefix.groups()[0]
             if int(id_prefix.groups()[0]) != atlas_id:
-                #new atlas started
+                # new atlas started
                 tile_set.atlasses.append(atlas)
                 print(atlas.gd3_atlas_dict)
                 atlas = TileSet.Atlas()
@@ -169,11 +179,11 @@ def parse_godot3_tile_set(lines: Iterable[str]):
                 # danger zone, manipulating the index again
                 # this will ignore the autotiling information, needs to be implemented later
                 index += 1
-                while not re.search(r"(\d+)/",lines[index+1]):
+                while not re.search(r"(\d+)/", lines[index+1]):
                     index += 1
             else:
                 key, value = line[line.find("/")+1:].split("=")
-                atlas.gd3_atlas_dict[key] = value
+                atlas.gd3_atlas_dict[key.strip()] = value.strip()
     # add final atlas:
     tile_set.atlasses.append(atlas)
     print(tile_set.atlasses)
@@ -189,18 +199,28 @@ def tileset_to_godot_4_tileset(ts: TileSet):
     lines = []
     ts.load_steps += len(ts.ext_resources) + len(ts.atlasses)
     lines.append(
-        '[gd_resource type="TileSet" load_steps={0} format=3]\n\n'.format(ts.load_steps))
+        '[gd_resource type="TileSet" load_steps={0} format=3 uid="uid://{1}"]\n\n'.format(ts.load_steps,UID.get_next_uid_as_text()))
     for ext in ts.ext_resources:
         lines.append(
-            '[ext_resource type={0} path={1} id={2}]\n\n'.format(ext["type"], ext["path"], ext["id"]))
-    
+            '[ext_resource type={0} uid="uid://{3}" path={1} id={2}]\n\n'.format(ext["type"], ext["path"], ext["id"],UID.get_next_uid_as_text()))
+
+    atlas: TileSet.Atlas
     for atlas in ts.atlasses:
         pass
-        # TODO lines.append([sub_resource type="TileSetAtlasSource" 
+        lines.append('[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_{0}"]\n'.format(UID.generate_scene_unique_id()))
+        lines.append('resource_name = {0}\n'.format(atlas.get("name"))) # name will just be empty if unused
+        if atlas.has("texture"):
+            texture_id = atlas.get("texture")
+            texture_id = texture_id[texture_id.find("(")+1:texture_id.find(")")]
+            lines.append('texture = ExtResource("{0}")\n'.format(texture_id))
+        lines.append('texture_region_size = Vector2i({0}, {1})\n'.format(atlas.texture_region_size[0],atlas.texture_region_size[1]))
+        # lines.append('{0}\n'.format(1))
+        lines.append('\n')
     return lines
 
 
 if __name__ == "__main__":
+    UID.init()
     source_dir, target_dir = get_source_and_target_from_params()
 
     tres, tscn = walk_path(source_dir)
