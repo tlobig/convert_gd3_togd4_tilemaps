@@ -97,3 +97,12 @@ if __name__ == "__main__":
         with open(target_file_name, mode="w",) as o:
             print("- writing: " + target_file_name)
             o.writelines(lines)
+
+    print("\nwriting Scenes with TileMaps")
+    for tm in tilemaps:
+        lines = tm.lines
+        target_file_name = os.path.join(target_dir, tm.rel_path)
+        os.makedirs(os.path.dirname(target_file_name), exist_ok=True)
+        with open(target_file_name, mode="w",) as o:
+            print("- writing: " + target_file_name)
+            o.writelines(lines)

@@ -230,3 +230,9 @@ class TileSet:
             lines.append('sources/{0} = SubResource("TileSetAtlasSource_{1}")\n'.format(atlas_count,atlas.r_uid))
             atlas_count += 1
         return lines
+
+    def convert_gd3_to_gd4_tile_data(self,array : Iterable[int]):
+        if len(array) % 3 != 0: # things that should never happen and yet...
+            return array
+        # TODO now do the complicated part :D
+        return array
