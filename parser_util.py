@@ -19,8 +19,6 @@ def is_valid_tile_map(lines: Iterable[str]):
             any_map = True
             break
     if not any_map:
-        # print("Skipping {0}, seems not to be a valid TileMap file".format(
-        #     source.name))
         return False
     return is_valid_target_version(lines)
 

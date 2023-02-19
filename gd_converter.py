@@ -6,7 +6,7 @@ import re
 from UID_tools import UID
 
 from tile_set import TileSet
-from tile_map import TileMap
+from tile_map import SceneWithTileMap
 
 
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     source_dir, target_dir = get_source_and_target_from_params()
 
     tres, tscn = walk_path(source_dir)
-    tilesets, tilemaps = [], []
+    tilesets, tilemaps = {}, []
 
     print("\nparsing TileSets")
     for t in tres:
@@ -72,21 +72,25 @@ if __name__ == "__main__":
             ts = TileSet.parse_tile_set(lines)
             if ts != None:
                 ts.rel_path = os.path.relpath(t, source_dir)
-                tilesets.append(ts)
+                # tilesets.append(ts)
+                tilesets["res://"+ts.rel_path.replace("\\","/")] = ts
             else:
                 print("Skipping {0}, seems not to be a valid source TileSet".format(source.name))
 
     print("\nparsing TileMaps")
-    # for t in tscn:
-    #     with open(t, "r") as source:
-    #         lines = source.readlines()
-    #         if not is_valid_tile_map(lines):
-    #             continue
-    #         tilemaps.append(parse_godot3_tile_map(lines))
+    for t in tscn:
+        with open(t, "r") as source:
+            lines = source.readlines()
+            tm = SceneWithTileMap.parse_tile_map(lines,tilesets)
+            if tm != None:
+                tm.rel_path = os.path.relpath(t, source_dir)
+                tilemaps.append(tm)
+            else:
+                print("Skipping {0}, seems not to be a valid Godot 3 Scene with a TileMap".format(source.name))
 
     print("\nwriting TileSets")
     os.makedirs(target_dir, exist_ok=True)
-    for ts in tilesets:
+    for ts in tilesets.values():
         lines = ts.get_lines_for_godot_4_tile_set()
         target_file_name = os.path.join(target_dir, ts.rel_path)
         os.makedirs(os.path.dirname(target_file_name), exist_ok=True)

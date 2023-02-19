@@ -1,5 +1,5 @@
 import re
-from parser_util import is_valid_target_version, is_valid_tile_map, is_valid_tile_set, header_line_to_dict, str_of_floats_to_list_of_floats
+from parser_util import is_valid_tile_set, header_line_to_dict, str_of_floats_to_list_of_floats
 from collections.abc import Iterable
 from UID_tools import UID
 
@@ -92,7 +92,8 @@ class TileSet:
         # second part, parsing tile atlasses
         atlas_id = 0
         atlas = TileSet.Atlas()
-        for index in range(rest_starts_at, len(lines)):
+        index = rest_starts_at
+        while index < len(lines):
             line = lines[index].strip()
             # match for an integer follow by a forward slash, i.e. 3/
             id_prefix = re.search(r"(\d+)/", line)
@@ -116,6 +117,7 @@ class TileSet:
                 else:
                     key, value = line[line.find("/")+1:].split("=")
                     atlas.gd3_atlas_dict[key.strip()] = value.strip()
+            index += 1
         # add final atlas:
         tile_set.atlasses.append(atlas)
         tile_set.prepare_sub_resources()

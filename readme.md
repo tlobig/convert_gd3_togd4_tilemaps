@@ -18,3 +18,9 @@ progress:
   - tilesets are already quite usable
   - autotiling information is still not preserved, but terrains are being prepared
   - collision shapes are preserved, but most additional physics information is ignored, shape transform also
+
+- tilemaps:
+  - first off: actually those are scene files with tile maps
+  - Godot does not convert tilemaps properly, only single tiles work, atlasses are removed from the tile data
+  - scenes can contain a lot of stuff I don't want to touch, I will do my best to leave it clean and workable at worst a manual merge with a version converted by Godot and a version converted by this converter needs to happen.
+  - I only started working in tilemaps

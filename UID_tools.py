@@ -26,7 +26,6 @@ class UID:
     def uid_to_text(id: int) -> str:
         char_count: int = ord('z') - ord('a')
         base: int = char_count + (ord('9') - ord('0'))
-        print(char_count, base)
         uid_txt = ""
         while id > 0:
             c = int(id % base)
