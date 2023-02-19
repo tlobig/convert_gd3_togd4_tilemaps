@@ -8,9 +8,13 @@ The idea is to run the script gd_converter.py either in the project folder that 
 
 progress:
 
-- so far only the rudimentary parsing of a tileset is implemented, known as missing:
+- most of the parsing of a tileset is implemented, known as missing:
   - autotile bitmask reading
-  - texture_region_size is a property of tileset now and used to be a cell_size, a property of tilemap, can't know it without parsing tilemaps
+  - texture offset (now called texture origin)
+  - additional physics info on collision shapes, also shape transform
+  
 - writing tilesets:
-  - figured out most of the uuid stuff, this project already sees refactoring to have it clean enough.
-  - basic tilesets work now, autotiling and collision shapes are missing
+  - figured out most of the uuid stuff, leaving it out for external resources since it's likely not gonna be correct anyway and Godot falls back on the path then
+  - tilesets are already quite usable
+  - autotiling information is still not preserved, but terrains are being prepared
+  - collision shapes are preserved, but most additional physics information is ignored, shape transform also

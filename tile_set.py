@@ -17,7 +17,8 @@ class TileSet:
             self.tilemode = 0
             self.count_x = 1
             self.count_y = 1
-            self.autotiles = {}
+            self.coord_to_subid_dict = {}
+            self.coord_to_shape_dict = {}
 
         def has(self,key : str) -> bool:
             return key in self.gd3_atlas_dict.keys()
@@ -32,21 +33,36 @@ class TileSet:
         self.rel_path = ""
         self.atlasses = []
         self.colision_shapes = {}
+        self.has_collision = False
+        self.terrain_counter = 0
+        self.tilesizes_dict = {}
         pass
 
-    def prepare_sub_resources(self, tile_width, tile_height):
+    def prepare_sub_resources(self):
         for sub in self.sub_resources:
             if sub["type"] == '"ConvexPolygonShape2D"':
                 points = sub["points"]
-                # points are now based around the center
-                points = [points[i] - (tile_width / 2.0 if i % 2 ==
-                                       0 else tile_height / 2.0) for i in range(0, len(points))]
-                self.colision_shapes[sub["id"]] = points
+                # # points are now based around the center
+                # points = [points[i] - (tile_width / 2.0 if i % 2 ==
+                #                        0 else tile_height / 2.0) for i in range(0, len(points))]
+                self.colision_shapes[int(sub["id"])] = points
 
     def get_correct_type_name(name: str):
         if name == '"Texture"':
             name = '"Texture2D"'
-        return name    
+        return name
+
+    def parse_autotile_info(lines: Iterable[str]) -> dict:
+        coord_to_subid_dict = {}
+        records = "".join(lines).split("}, {")
+        for r in records:
+            match_coord = re.search(r'"autotile_coord": Vector2\( (\d+, \d+) \)',r)
+            match_subres = re.search(r'"shape": SubResource\( (\d+) \)',r)
+            if match_coord and match_subres:
+                coord = tuple(map(int,match_coord.group(1).split(",")))
+                subrec = int(match_subres.group(1))
+                coord_to_subid_dict[coord] = subrec
+        return coord_to_subid_dict
 
     def parse_godot3_tile_set(lines: Iterable[str]):
         tile_set = TileSet()
@@ -92,19 +108,24 @@ class TileSet:
                     # expecting a few lines that are not prefixed with the id !
                     # danger zone, manipulating the index again
                     # this will ignore the autotiling information, needs to be implemented later
-                    autotile_info_string = [line.strip()]
+                    autotile_infos = [line.strip()]
                     while not re.search(r"(\d+)/", lines[index+1]):
-                        autotile_info_string.append(lines[index+1].strip())
+                        autotile_infos.append(lines[index+1].strip())
                         index += 1
-                    
+                    atlas.coord_to_subid_dict = TileSet.parse_autotile_info(autotile_infos)
                 else:
                     key, value = line[line.find("/")+1:].split("=")
                     atlas.gd3_atlas_dict[key.strip()] = value.strip()
         # add final atlas:
         tile_set.atlasses.append(atlas)
+        tile_set.prepare_sub_resources()
         return tile_set
 
-
+    def update_tilesize_dict(self,tilesize,count):
+        if tilesize in self.tilesizes_dict:
+            self.tilesizes_dict[tilesize] += count
+        else:
+            self.tilesizes_dict[tilesize] = 1
 
     def is_godot3_tile_set(lines: Iterable[str]):
         return is_valid_tile_set(lines)
@@ -124,6 +145,7 @@ class TileSet:
                 atlas.margin = [atlas.region[0],atlas.region[1]]
                 if atlas.tilemode == 0: # single tile
                     atlas.texture_region_size = [atlas.region[2],atlas.region[3]]
+                    self.update_tilesize_dict(tuple(atlas.texture_region_size),1)
                     atlas.count_x = 1
                     atlas.count_y = 1
                 elif atlas.tilemode in [1,2] and atlas.has("autotile/tile_size"): # autotile or atlas
@@ -131,6 +153,17 @@ class TileSet:
                     atlas.texture_region_size = auto_tile_size
                     atlas.count_x = atlas.region[2] // atlas.texture_region_size[0]
                     atlas.count_y = atlas.region[3] // atlas.texture_region_size[1]
+                    self.update_tilesize_dict(tuple(atlas.texture_region_size),atlas.count_x*atlas.count_y)
+                if atlas.tilemode == 1: # autotile
+                    self.terrain_counter += 1
+            for coord,subid in atlas.coord_to_subid_dict.items():
+                if subid in self.colision_shapes:
+                    tile_width = atlas.texture_region_size[0]
+                    tile_height = atlas.texture_region_size[1]
+                    points = self.colision_shapes[subid]
+                    points = [points[i] - (tile_width / 2.0 if i % 2 ==0 else tile_height / 2.0) for i in range(0, len(points))]
+                    atlas.coord_to_shape_dict[coord] = points
+                    self.has_collision = True
                 
                 
     def parse_tile_set(lines: Iterable[str]):
@@ -147,7 +180,8 @@ class TileSet:
             '[gd_resource type="TileSet" load_steps={0} format=3 uid="uid://{1}"]\n\n'.format(self.load_steps,UID.get_next_uid_as_text()))
         for ext in self.ext_resources:
             lines.append(
-                '[ext_resource type={0} uid="uid://{3}" path={1} id={2}]\n\n'.format(ext["type"], ext["path"], ext["id"],UID.get_next_uid_as_text()))
+                # '[ext_resource type={0} uid="uid://{3}" path={1} id={2}]\n\n'.format(ext["type"], ext["path"], ext["id"],UID.get_next_uid_as_text()))
+                '[ext_resource type={0} path={1} id="{2}"]\n\n'.format(ext["type"], ext["path"], ext["id"]))
 
         atlas: TileSet.Atlas
         for atlas in self.atlasses:
@@ -158,14 +192,37 @@ class TileSet:
             if sum(atlas.margin) > 0:
                 lines.append('margins = Vector2i({0}, {1})\n'.format(atlas.margin[0],atlas.margin[1]))
             lines.append('texture_region_size = Vector2i({0}, {1})\n'.format(atlas.texture_region_size[0],atlas.texture_region_size[1]))
-            # lines.append('{0}\n'.format(1))
             for x_i in range(atlas.count_x):
                 for y_i in range(atlas.count_y):
                     lines.append('{0}:{1}/0 = 0\n'.format(x_i,y_i))
+                    if atlas.tilemode == 1:
+                        lines.append('{0}:{1}/0/terrain_set = 0\n'.format(x_i,y_i))
+                    if (x_i,y_i) in atlas.coord_to_shape_dict:
+                        lines.append('{0}:{1}/0/physics_layer_0/linear_velocity = Vector2(0, 0)\n'.format(x_i,y_i))
+                        lines.append('{0}:{1}/0/physics_layer_0/angular_velocity = 0.0\n'.format(x_i,y_i))
+                        lines.append('{0}:{1}/0/physics_layer_0/polygon_0/points = PackedVector2Array({2})\n'.format(x_i,y_i,','.join(map(str,atlas.coord_to_shape_dict[(x_i,y_i)]))))
+            # lines.append('{0}\n'.format(1))
             lines.append('\n')
 
         lines.append('[resource]\n')
         atlas_count = 0
+        # tilesize for the whole TileSet goes here, but there are no 100% perfect guesses
+        # you could parse tilemaps first, if any has this tileset and then take the cell size from the tilemap
+        # but then again cell size could differ and it's making things more complex and interdependent
+        # so let's just guess the tilesize found most often is the correct one
+        if len(self.tilesizes_dict) > 0:
+            sizes = [(v,k) for k,v in self.tilesizes_dict.items()]
+            sizes.sort()
+            most_frequent_size = sizes[-1][1]
+            lines.append('tile_size = Vector2i({0}, {1})\n'.format(most_frequent_size[0],most_frequent_size[1]))
+        if self.has_collision:
+            lines.append('physics_layer_0/collision_layer = 1\n')
+        if self.terrain_counter > 0:
+            lines.append('terrain_set_0/mode = 0\n')
+            for terrain_id in range(self.terrain_counter):
+                lines.append('terrain_set_0/terrain_{0}/name = "Terrain {0}"\n'.format(terrain_id))
+                color_factor = terrain_id / (self.terrain_counter - 1)
+                lines.append('terrain_set_0/terrain_{0}/color = Color({1}, {2}, {2}, 1)\n'.format(terrain_id,color_factor,1-color_factor))
         atlas: TileSet.Atlas
         for atlas in self.atlasses:
             lines.append('sources/{0} = SubResource("TileSetAtlasSource_{1}")\n'.format(atlas_count,atlas.r_uid))
