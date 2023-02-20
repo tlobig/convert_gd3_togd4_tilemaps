@@ -67,7 +67,14 @@ class SceneWithTileMap:
                         else:
                             tm.lines.append(line)
                 else:
-                    tm.lines.append(line)
+                    match_type = re.search(r'type=\"([\w\d]+)\"',line)
+                    if match_type:
+                        type_name = GD4Types.godot3_to_godot4_type_name(match_type.group(1))
+                        match_everything_but_type = re.match(r'^(\[.*type=\")[\w\d]+(\".*$)',line)
+                        if match_everything_but_type:
+                            tm.lines.append(match_everything_but_type.group(1)+type_name+match_everything_but_type.group(2))
+                    else:
+                        tm.lines.append(line)
             else:
                 tm.lines.append(line)
             index += 1

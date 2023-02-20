@@ -235,4 +235,18 @@ class TileSet:
         if len(array) % 3 != 0: # things that should never happen and yet...
             return array
         # TODO now do the complicated part :D
-        return array
+        rearranged_array = []
+        for index_third in range(len(array) // 3):
+            location = array[index_third * 3] # encoding unchanged
+            tileinfo = array[index_third * 3 + 1] # should be translated to source id
+            atlasinfo = array[index_third * 3 + 2]
+            # flip_h = (1 << 29) & tileinfo # unused.. maybe
+            # flip_v = (1 << 30) & tileinfo
+            # transpose = (1 << 31) & tileinfo
+            sourceid = tileinfo & 0xFFFF
+            atlas_x = atlasinfo & 0xFFFF 
+            atlas_y = (atlasinfo & 0xFFFF0000) >> 16
+            rearranged_array.append(location)
+            rearranged_array.append( atlas_x << 16 | sourceid ) # x and y in atlas are reversed from Godot 3 to Godot 4
+            rearranged_array.append(atlas_y)
+        return rearranged_array
