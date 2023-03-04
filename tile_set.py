@@ -223,7 +223,7 @@ class TileSet:
             lines.append('terrain_set_0/mode = 0\n')
             for terrain_id in range(self.terrain_counter):
                 lines.append('terrain_set_0/terrain_{0}/name = "Terrain {0}"\n'.format(terrain_id))
-                color_factor = terrain_id / (self.terrain_counter - 1)
+                color_factor = terrain_id / (self.terrain_counter)
                 lines.append('terrain_set_0/terrain_{0}/color = Color({1}, {2}, {2}, 1)\n'.format(terrain_id,color_factor,1-color_factor))
         atlas: TileSet.Atlas
         for atlas in self.atlasses:

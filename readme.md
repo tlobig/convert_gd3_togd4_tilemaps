@@ -20,6 +20,14 @@ My converter does it a bit better
 
 run the script gd_converter.py either in the project folder that should be ported or use source and target dirs as parameters. If you want to try it, make sure to have a back. The target directory may overwrite files. Can't repeat this enough, this is not production code. No liabilities whatsoever.
 
+## known issues
+
+Since I only worked on this tool until it did exactly what I needed, there are known issues I currently don't handle:
+
+- does not work with tilesets which are a subresource. Simply save the tileset as seperate file (using Godot 3.5 of course) before doing the conversion
+- might mess up other nodes in the scene. if this happens try to use a diff tool with the output of my converter and the output of Godot 4's converter. Or have the tilemap in a seperate scene for conversion only and drag it over in Godot 4.
+- multiple collision polygons per tile do not work, only the first is preserved
+
 ## progress
 
 - most of the parsing of a tileset is implemented, known as missing:
